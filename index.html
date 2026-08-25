@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexiones - One Marketer</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/Juank930/ImagenesRRSS/main/Icono23.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <style>
+        /* ===== ESTILOS (solo los necesarios para Conexiones) ===== */
+        :root {
+            --primary: #e63946;
+            --primary-dark: #c1121f;
+            --secondary: #1d3557;
+            --accent: #0396a6;
+            --accent-dark: #027a87;
+            --bg-light: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-dark: #1a1a2e;
+            --text-muted: #495057;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.10);
+            --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.15);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-light);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 24px;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .main-header {
+            text-align: center;
+            padding: 20px 0;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 28px;
+        }
+
+        .main-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .main-header h1 .highlight {
+            color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #f77f00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .top-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .top-buttons button,
+        .custom-file-btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-dark);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-buttons button:hover,
+        .custom-file-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .custom-file-btn {
+            background: #6422bb;
+            color: #fff;
+        }
+        .custom-file-btn:hover { background: #000000; }
+
+        /* ===== ESTILOS DE CONEXIONES ===== */
+        #conexionesPage {
+            display: block;
+        }
+
+        .area-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 12px;
+            border: 1px solid #f1f3f5;
+        }
+
+        .area-filter-container label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .area-filter-container select {
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid #e9ecef;
+            font-size: 0.85rem;
+            background: #f8f9fa;
+            font-family: inherit;
+            min-width: 150px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .area-filter-container select:focus {
+            outline: none;
+            border-color: #6f42c1;
+            box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.15);
+        }
+
+        .area-filter-container .area-filter-badge {
+            background: #6f42c1;
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .area-filter-container .btn-clear-area {
+            background: #e9ecef;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+        .area-filter-container .btn-clear-area:hover {
+            background: #dee2e6;
+        }
+
+        .conexiones-search-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            border: 1px solid #f1f3f5;
+        }
+
+        .conexiones-search-wrapper label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .conexiones-search-wrapper input {
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid #e9ecef;
+            font-size: 0.9rem;
+            width: 280px;
+            transition: var(--transition);
+            background: #f8f9fa;
+            font-family: inherit;
+        }
+
+        .conexiones-search-wrapper input:focus {
+            outline: none;
+            border-color: #6f42c1;
+            box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.15);
+            background: #fff;
+        }
+
+        .conexiones-total {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.95rem;
+            padding: 6px 16px;
+            background: #eef2f7;
+            border-radius: 50px;
+        }
+
+        .conexiones-total span {
+            color: #6f42c1;
+            font-weight: 700;
+        }
+
+        .conexiones-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #f1f3f5;
+        }
+
+        #tablaConexiones {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            background: var(--bg-card);
+        }
+
+        #tablaConexiones thead th {
+            background: #6f42c1;
+            color: #ffffff;
+            padding: 12px 14px;
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 2px solid #5a32a3;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #tablaConexiones tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        #tablaConexiones tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        #tablaConexiones tbody tr:nth-child(even) {
+            background: #fcfcfd;
+        }
+
+        .duracion-estados-container {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #f1f3f5;
+        }
+
+        .duracion-estados-container h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 12px;
+        }
+
+        #tablaDuracionEstados {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        #tablaDuracionEstados th {
+            background: #6f42c1;
+            color: #fff;
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #5a32a3;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #tablaDuracionEstados th:hover {
+            background: #5a32a3;
+        }
+
+        #tablaDuracionEstados td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        #tablaDuracionEstados tr:hover {
+            background: #f8f9fa;
+        }
+
+        .alert-row {
+            background: #fff5f5 !important;
+            border-left: 4px solid #dc3545;
+        }
+
+        .duracion-sort-icon {
+            font-size: 0.65rem;
+            margin-left: 4px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .resumen-tiempos-container {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #f1f3f5;
+        }
+
+        .resumen-tiempos-container h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 12px;
+        }
+
+
+        #tablaResumenTiempos {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        #tablaResumenTiempos th {
+            background: #f1f3f5;
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+        }
+
+        #tablaResumenTiempos td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        #tablaResumenTiempos tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-container {
+            overflow: auto;
+            max-height: 400px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .conexiones-search-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .conexiones-search-wrapper input {
+                width: 100%;
+            }
+            .area-filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .area-filter-container select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="conexionesPage">
+    <div class="main-header">
+        <h1>
+            🔌 Conexiones
+            <span class="highlight">One Marketer</span>
+        </h1>
+    </div>
+
+    <div class="top-buttons">
+        <label for="conexionesFileInput" class="custom-file-btn">
+            📁 Cargar archivo "Operator Sessions"
+        </label>
+        <input type="file" id="conexionesFileInput" accept=".csv" hidden>
+        <button onclick="irATimeline()" class="custom-file-btn" style="background:#f4f4f5;">
+            ♾️ Línea de Tiempo
+        </button>
+    </div>
+
+    <!-- FILTRO DE ÁREA -->
+    <div class="area-filter-container" id="areaFilterContainer" style="display:none;">
+        <label>
+            📂 Filtrar por Área:
+            <select id="areaFilterSelect" multiple onchange="aplicarFiltroArea()">
+                <!-- Opciones generadas dinámicamente -->
+            </select>
+        </label>
+        <span class="area-filter-badge" id="areaFilterCount">0 seleccionadas</span>
+        <button class="btn-clear-area" onclick="limpiarFiltroArea()">✖ Limpiar</button>
+    </div>
+
+    <div class="conexiones-search-wrapper">
+        <label>
+            🔍 Buscar usuario:
+            <input type="text" id="conexionesSearchInput" placeholder="Escribe el nombre del usuario..." oninput="filtrarConexiones()">
+            <button onclick="limpiarBusquedaConexiones()" style="background:#6c757d; color:#fff; border:none; padding:8px 16px; border-radius:50px; font-weight:600; cursor:pointer; margin-left:8px;">
+                Limpiar
+            </button>
+        </label>
+        <div class="conexiones-total">
+            Total de resultados: <span id="conexionesTotalCount">0</span>
+        </div>
+    </div>
+
+    <div class="conexiones-table-container">
+        <table id="tablaConexiones" style="display:none; width:100%;">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Área</th>
+                    <th>Supervisor</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Duración</th>
+                    <th>Estado</th>
+                    <th>Descripción</th>
+                    <th>Casos Abiertos</th>
+                </tr>
+            </thead>
+            <tbody id="conexionesTbody"></tbody>
+        </table>
+    </div>
+
+    <div id="conexionesSinDatos" style="padding:30px; color:#6c757d; font-size:1.1rem; display:none; text-align:center;">
+        No hay datos de conexiones cargados. Por favor, carga un archivo CSV.
+    </div>
+
+    <!-- TABLA DE DURACIÓN POR ESTADO -->
+    <div class="duracion-estados-container" id="duracionEstadosContainer" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <h3 style="margin:0;">⏱️ Duración por Estado (en segundos)</h3>
+            <button onclick="descargarDuracionExcel()" style="background:#2d6a4f; color:#fff; border:none; padding:8px 18px; border-radius:50px; font-weight:600; cursor:pointer; transition:var(--transition); font-size:0.85rem;">
+                📥 Descargar Excel
+            </button>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Suma de duración en segundos que cada usuario estuvo en cada estado. Haz clic en los encabezados para ordenar.</p>
+        <div class="table-container">
+            <table id="tablaDuracionEstados">
+                <thead id="duracionThead">
+                    <tr id="duracionHeaderRow">
+                        <th data-col="usuario" onclick="ordenarDuracion('usuario')">Usuario <span class="duracion-sort-icon">↕</span></th>
+                        <th data-col="alertas" onclick="ordenarDuracion('alertas')">Alertas <span class="duracion-sort-icon">↕</span></th>
+                    </tr>
+                </thead>
+                <tbody id="duracionTbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TABLA DE RESUMEN (CONTEOS) - PRINCIPAL -->
+    <div class="resumen-tiempos-container" id="resumenContainer" style="display:none;">
+        <h3>📊 Conteo de veces por Estado</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Cantidad de veces que cada usuario estuvo en cada estado.</p>
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+            <table id="tablaResumenTiempos">
+                <thead id="resumenThead">
+                    <tr id="resumenHeaderRow">
+                        <th>Usuario</th>
+                        <th>Alertas</th>
+                    </tr>
+                </thead>
+                <tbody id="resumenTbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ===== LÍNEA DE TIEMPO (SECCIÓN OCULTA) ===== -->
+<div id="timelinePage" style="display:none; padding:24px; background:var(--bg-light); border-radius:var(--radius); box-shadow:var(--shadow-sm); margin-top:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <h1 style="color:#6f42c1; font-weight:700; font-size:1.8rem;">📊 Línea de Tiempo</h1>
+        <button onclick="volverDeTimeline()" class="custom-file-btn" style="background:#6c757d;">⬅ Volver a Conexiones</button>
+    </div>
+
+    <div class="conexiones-search-wrapper">
+        <label>
+            🔍 Buscar usuario:
+            <input type="text" id="timelineSearchInput" placeholder="Escribe el nombre del usuario..." oninput="filtrarTimeline()">
+        </label>
+        <div class="conexiones-total">
+            Usuarios: <span id="timelineUserCount">0</span>
+        </div>
+    </div>
+
+    <div class="timeline-container" style="background:var(--bg-card); border-radius:var(--radius); padding:20px; border:1px solid #f1f3f5;">
+        <h2 style="font-size:1.3rem; font-weight:600; color:var(--secondary); margin-bottom:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            ⏳ Línea de Tiempo por Usuario
+            <span class="badge-alert" id="alertCountTimelineBadge" onclick="toggleAlertFilterTimeline()" style="background:#dc3545; color:#fff; font-size:0.9rem; font-weight:700; padding:8px 20px; border-radius:50px; cursor:pointer; transition:var(--transition); border:none; box-shadow:0 2px 8px rgba(220,53,69,0.3);">0 alertas</span>
+        </h2>
+        <div id="timelineContent"></div>
+    </div>
+</div>
+
+<script>
+    // ===== VARIABLES GLOBALES =====
+    let conexionesData = [];
+    let conexionesFiltradas = [];
+    let areasSeleccionadas = [];
+    let mapaLicencias = {};
+    let alertFilterActiveTimeline = false;
+    let duracionSortColumn = 'usuario';
+    let duracionSortDirection = 1;
+
+    // Mapeo de colores para estados (para la línea de tiempo)
+    const estadoColores = {
+        'línea': 'estado-linea',
+        'linea': 'estado-linea',
+        'fin de turno': 'estado-fin-turno',
+        'casos fin de turno': 'estado-casos-fin-turno',
+        'conectado': 'estado-conectado',
+        'desconectado': 'estado-desconectado',
+        'pausa': 'estado-pausa',
+        'almuerzo': 'estado-almuerzo',
+        'ocupado': 'estado-ocupado',
+        'disponible': 'estado-disponible',
+        'gestión bo': 'estado-gestion-bo',
+        'en baño': 'estado-en-bano',
+        'en break': 'estado-en-break'
+    };
+
+    // ===== FUNCIONES =====
+
+    // Cargar licencias desde GitHub
+    function cargarLicencias() {
+        const url = "https://raw.githubusercontent.com/teamdigitalrrss-jpg/tNPS-diario/main/Licencias.xlsx";
+        fetch(url)
+            .then(res => res.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, { type: "array" });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const dataLicencias = XLSX.utils.sheet_to_json(sheet);
+                mapaLicencias = {};
+                dataLicencias.forEach(row => {
+                    const usuario = (row["Usuario nuevo"] || "").toLowerCase().trim();
+                    if (usuario) {
+                        mapaLicencias[usuario] = {
+                            Supervisor: row["Supervisor"] || "",
+                            Site: row["Site"] || "",
+                            Area: row["Area"] || ""
+                        };
+                    }
+                });
+                // Si ya hay datos de conexiones, actualizar filtro de área y tablas
+                if (conexionesData.length > 0) {
+                    actualizarFiltroArea();
+                    seleccionarAreaPorDefecto();
+                    filtrarConexiones();
+                }
+            })
+            .catch(error => console.error("Error cargando licencias:", error));
+    }
+
+    // Iniciar carga de licencias al cargar la página
+    cargarLicencias();
+
+    // ===== EVENTO PARA CARGAR CSV DE CONEXIONES =====
+    document.getElementById("conexionesFileInput").addEventListener("change", function(e) {
+        const archivo = e.target.files[0];
+        if (!archivo) return;
+
+        const lector = new FileReader();
+        lector.onload = function(ev) {
+            const lineas = ev.target.result.split(/\r?\n/).filter(x => x.trim() !== "");
+            const tbody = document.getElementById("conexionesTbody");
+            tbody.innerHTML = "";
+            conexionesData = [];
+
+            for (let i = 1; i < lineas.length; i++) {
+                const cols = lineas[i].split(";");
+                while (cols.length < 9) cols.push("");
+                const usuario = cols[0]?.trim() || "";
+                const usuarioKey = usuario.toLowerCase().trim();
+                const licencia = mapaLicencias[usuarioKey] || {};
+                const supervisor = licencia.Supervisor || "";
+                const area = licencia.Area || "";
+
+                let estado = cols[6]?.trim() || "";
+                let descripcion = cols[7]?.trim() || "";
+                if (estado.toLowerCase() === "línea" || estado.toLowerCase() === "linea") {
+                    descripcion = "Línea";
+                }
+
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                    <td>${usuario}</td>
+                    <td>${area}</td>
+                    <td>${supervisor}</td>
+                    <td>${cols[1]?.trim() || ""}</td>
+                    <td>${cols[2]?.trim() || ""}</td>
+                    <td>${cols[3]?.trim() || ""}</td>
+                    <td>${estado}</td>
+                    <td>${descripcion}</td>
+                    <td>${cols[8]?.trim() || ""}</td>
+                `;
+                tbody.appendChild(fila);
+
+                conexionesData.push({
+                    usuario: usuario,
+                    area: area,
+                    supervisor: supervisor,
+                    inicio: cols[1]?.trim() || "",
+                    fin: cols[2]?.trim() || "",
+                    duracion: cols[3]?.trim() || "",
+                    estado: estado,
+                    descripcion: descripcion,
+                    casosAbiertos: cols[8]?.trim() || ""
+                });
+            }
+
+            const totalRegistros = conexionesData.length;
+            alert(`✅ Se cargaron ${totalRegistros} registros de conexiones.`);
+
+            document.getElementById("tablaConexiones").style.display = "table";
+            document.querySelector(".conexiones-search-wrapper").style.display = "flex";
+            document.getElementById("conexionesSinDatos").style.display = "none";
+            document.getElementById("duracionEstadosContainer").style.display = "block";
+            document.getElementById("resumenContainer").style.display = "block";
+            document.getElementById("areaFilterContainer").style.display = "flex";
+
+            duracionSortColumn = 'usuario';
+            duracionSortDirection = 1;
+            actualizarFiltroArea();
+            seleccionarAreaPorDefecto();
+
+            // Establecer ordenación por defecto por "Casos fin de turno" descendentemente
+            const descripciones = obtenerDescripcionesUnicas(conexionesData);
+            const colCasos = obtenerColumnaCasosFinTurno(descripciones);
+            if (colCasos) {
+                duracionSortColumn = colCasos;
+                duracionSortDirection = -1;
+            }
+
+            filtrarConexiones();
+            document.getElementById("conexionesSearchInput").value = "";
+        };
+        lector.readAsText(archivo, "ISO-8859-1");
+    });
+
+    // ===== FUNCIONES AUXILIARES PARA OBTENER DESCRIPCIONES Y COLUMNA DE CASOS FIN DE TURNO =====
+    function obtenerDescripcionesUnicas(datos) {
+        const set = new Set();
+        datos.forEach(reg => {
+            const desc = reg.descripcion || 'Otros';
+            set.add(desc);
+        });
+        return Array.from(set).sort();
+    }
+
+    function obtenerColumnaCasosFinTurno(descripciones) {
+        const descCasos = descripciones.find(d => d.toLowerCase() === 'casos fin de turno');
+        if (descCasos) {
+            return 'col_' + descCasos.replace(/[^a-zA-Z0-9]/g, '_');
+        }
+        return null;
+    }
+
+    // ===== FUNCIONES DE FILTRO Y RENDERIZADO =====
+
+    function filtrarConexiones() {
+        const searchTerm = document.getElementById("conexionesSearchInput").value.toLowerCase().trim();
+        const tbody = document.getElementById("conexionesTbody");
+        const filas = tbody.querySelectorAll("tr:not(.no-results-message)");
+
+        let datosFiltrados = conexionesData;
+        if (searchTerm) {
+            datosFiltrados = datosFiltrados.filter(row => (row.usuario || "").toLowerCase().includes(searchTerm));
+        }
+        if (areasSeleccionadas.length > 0) {
+            datosFiltrados = datosFiltrados.filter(row => {
+                const usuarioKey = (row.usuario || "").toLowerCase().trim();
+                const licencia = mapaLicencias[usuarioKey] || {};
+                const area = licencia.Area || "";
+                return areasSeleccionadas.includes(area);
+            });
+        }
+        conexionesFiltradas = datosFiltrados;
+
+        // Mostrar solo las primeras 4 filas
+        const maxMostrar = 4;
+        let contador = 0;
+        filas.forEach(fila => {
+            const usuarioCell = fila.querySelector("td:first-child");
+            if (!usuarioCell) {
+                fila.style.display = "none";
+                return;
+            }
+            const texto = usuarioCell.textContent.toLowerCase();
+            let visible = true;
+            if (searchTerm && !texto.includes(searchTerm)) visible = false;
+            if (visible && areasSeleccionadas.length > 0) {
+                const areaCell = fila.querySelector("td:nth-child(2)");
+                const area = areaCell ? areaCell.textContent : "";
+                if (!areasSeleccionadas.includes(area)) visible = false;
+            }
+            if (visible) {
+                contador++;
+                fila.style.display = contador <= maxMostrar ? "" : "none";
+            } else {
+                fila.style.display = "none";
+            }
+        });
+
+        let mensajeFila = tbody.querySelector(".no-results-message");
+        if (contador === 0 && conexionesData.length > 0) {
+            if (!mensajeFila) {
+                mensajeFila = document.createElement("tr");
+                mensajeFila.className = "no-results-message";
+                mensajeFila.innerHTML = `<td colspan="9" style="text-align:center; padding:30px; color:#6c757d;">No se encontraron resultados para la búsqueda.</td>`;
+                tbody.appendChild(mensajeFila);
+            }
+            mensajeFila.style.display = "";
+        } else if (mensajeFila) {
+            mensajeFila.style.display = "none";
+        }
+
+        document.getElementById("conexionesTotalCount").textContent = conexionesFiltradas.length;
+
+        // Actualizar tablas de duración y resumen
+        const tbodyDuracion = document.getElementById('duracionTbody');
+        if (tbodyDuracion) {
+            tbodyDuracion.innerHTML = generarDuracionEstados(conexionesFiltradas);
+        }
+        const tbodyResumen = document.getElementById('resumenTbody');
+        if (tbodyResumen) {
+            tbodyResumen.innerHTML = generarResumenConteos(conexionesFiltradas);
+        }
+    }
+
+    function limpiarBusquedaConexiones() {
+        document.getElementById("conexionesSearchInput").value = "";
+        filtrarConexiones();
+    }
+
+    // ===== FILTRO DE ÁREA =====
+    function actualizarFiltroArea() {
+        const select = document.getElementById('areaFilterSelect');
+        const areasSet = new Set();
+        conexionesData.forEach(row => {
+            const usuarioKey = (row.usuario || "").toLowerCase().trim();
+            const licencia = mapaLicencias[usuarioKey] || {};
+            const area = licencia.Area || "";
+            if (area && area.trim()) areasSet.add(area.trim());
+        });
+        if (areasSet.size === 0) {
+            Object.values(mapaLicencias).forEach(lic => {
+                if (lic.Area && lic.Area.trim()) areasSet.add(lic.Area.trim());
+            });
+        }
+        const areas = Array.from(areasSet).sort();
+        const selectedValues = Array.from(select.selectedOptions).map(opt => opt.value);
+        select.innerHTML = '';
+        areas.forEach(area => {
+            const option = document.createElement('option');
+            option.value = area;
+            option.textContent = area;
+            if (selectedValues.includes(area)) option.selected = true;
+            select.appendChild(option);
+        });
+        actualizarContadorArea();
+    }
+
+    function seleccionarAreaPorDefecto() {
+        const select = document.getElementById('areaFilterSelect');
+        if (!select) return;
+        Array.from(select.options).forEach(opt => opt.selected = false);
+        const sacOption = Array.from(select.options).find(opt => opt.value === 'SAC');
+        if (sacOption) {
+            sacOption.selected = true;
+        }
+        actualizarContadorArea();
+    }
+
+    function actualizarContadorArea() {
+        const select = document.getElementById('areaFilterSelect');
+        const count = select ? select.selectedOptions.length : 0;
+        document.getElementById('areaFilterCount').textContent = `${count} seleccionada${count !== 1 ? 's' : ''}`;
+        areasSeleccionadas = select ? Array.from(select.selectedOptions).map(opt => opt.value) : [];
+    }
+
+    function aplicarFiltroArea() {
+        actualizarContadorArea();
+        filtrarConexiones();
+        if (document.getElementById('timelinePage').style.display !== 'none') {
+            filtrarTimeline();
+        }
+    }
+
+    function limpiarFiltroArea() {
+        const select = document.getElementById('areaFilterSelect');
+        if (select) Array.from(select.options).forEach(opt => opt.selected = false);
+        areasSeleccionadas = [];
+        actualizarContadorArea();
+        filtrarConexiones();
+        if (document.getElementById('timelinePage').style.display !== 'none') {
+            filtrarTimeline();
+        }
+    }
+
+    // ===== FUNCIONES DE DURACIÓN Y ALERTAS =====
+    function parseFecha(str) {
+        const partes = str.trim().split(' ');
+        if (partes.length !== 2) return null;
+        const fecha = partes[0].split('-');
+        const hora = partes[1].split(':');
+        if (fecha.length !== 3 || hora.length !== 3) return null;
+        return new Date(parseInt(fecha[2]), parseInt(fecha[1])-1, parseInt(fecha[0]), parseInt(hora[0]), parseInt(hora[1]), parseInt(hora[2]));
+    }
+
+    function calcularDuracionSegundos(inicio, fin) {
+        if (!inicio || !fin) return 0;
+        const fechaInicio = parseFecha(inicio);
+        const fechaFin = parseFecha(fin);
+        if (!fechaInicio || !fechaFin) return 0;
+        const diffMs = fechaFin - fechaInicio;
+        return diffMs > 0 ? Math.floor(diffMs / 1000) : 0;
+    }
+
+    function contarAlertas(registros) {
+        const sorted = [...registros].sort((a, b) => {
+            const fa = parseFecha(a.inicio);
+            const fb = parseFecha(b.inicio);
+            if (!fa || !fb) return 0;
+            return fa - fb;
+        });
+
+        let totalTransiciones = 0;
+        for (let i = 0; i < sorted.length - 1; i++) {
+            const actual = sorted[i].descripcion.toLowerCase().trim();
+            const siguiente = sorted[i+1].descripcion.toLowerCase().trim();
+            if ((actual === 'casos fin de turno' || actual === 'fin de turno') && (siguiente === 'línea' || siguiente === 'linea')) {
+                totalTransiciones++;
+            }
+        }
+        // La primera transición no cuenta como alerta
+        return totalTransiciones > 0 ? totalTransiciones - 1 : 0;
+    }
+
+    function generarDuracionEstados(datos) {
+        const descripcionesSet = new Set();
+        const duracionPorUsuario = {};
+        const datosUsar = datos || conexionesFiltradas;
+        datosUsar.forEach(reg => {
+            const usuario = reg.usuario || 'Sin nombre';
+            const desc = reg.descripcion || 'Otros';
+            descripcionesSet.add(desc);
+            if (!duracionPorUsuario[usuario]) duracionPorUsuario[usuario] = { tiempos: {}, alertas: 0 };
+            const segundos = calcularDuracionSegundos(reg.inicio, reg.fin);
+            duracionPorUsuario[usuario].tiempos[desc] = (duracionPorUsuario[usuario].tiempos[desc] || 0) + segundos;
+        });
+        for (const [usuario, data] of Object.entries(duracionPorUsuario)) {
+            const registrosUsuario = datosUsar.filter(r => r.usuario === usuario);
+            data.alertas = contarAlertas(registrosUsuario);
+        }
+        const descripciones = Array.from(descripcionesSet).sort();
+
+        // Construir header
+        const headerRow = document.getElementById('duracionHeaderRow');
+        let headerHTML = '<th data-col="usuario" onclick="ordenarDuracion(\'usuario\')">Usuario <span class="duracion-sort-icon">↕</span></th>';
+        descripciones.forEach(desc => {
+            const colName = 'col_' + desc.replace(/[^a-zA-Z0-9]/g, '_');
+            headerHTML += `<th data-col="${colName}" onclick="ordenarDuracion('${colName}')">${desc} <span class="duracion-sort-icon">↕</span></th>`;
+        });
+        headerHTML += '<th data-col="alertas" onclick="ordenarDuracion(\'alertas\')">Alertas <span class="duracion-sort-icon">↕</span></th>';
+        headerRow.innerHTML = headerHTML;
+
+        let datosTabla = [];
+        for (const [usuario, data] of Object.entries(duracionPorUsuario)) {
+            const row = { usuario: usuario, alertas: data.alertas, _raw: data };
+            descripciones.forEach(desc => {
+                const colName = 'col_' + desc.replace(/[^a-zA-Z0-9]/g, '_');
+                row[colName] = data.tiempos[desc] || 0;
+            });
+            datosTabla.push(row);
+        }
+        // Ordenar
+        datosTabla.sort((a, b) => {
+            let valA, valB;
+            if (duracionSortColumn === 'usuario') {
+                valA = a.usuario.toLowerCase(); valB = b.usuario.toLowerCase();
+                return valA.localeCompare(valB) * duracionSortDirection;
+            } else if (duracionSortColumn === 'alertas') {
+                return (a.alertas - b.alertas) * duracionSortDirection;
+            } else {
+                return ((a[duracionSortColumn] || 0) - (b[duracionSortColumn] || 0)) * duracionSortDirection;
+            }
+        });
+
+        let html = '';
+        datosTabla.forEach(row => {
+            const alertaClass = row.alertas > 0 ? 'alert-row' : '';
+            const usuarioClickable = `<strong style="cursor:pointer; color:#6f42c1; text-decoration:underline;" onclick="irATimelineDeUsuario('${row.usuario.replace(/'/g, "\\'")}')">${row.usuario}</strong>`;
+            html += `<tr class="${alertaClass}">`;
+            html += `<td>${usuarioClickable}</td>`;
+            descripciones.forEach(desc => {
+                const colName = 'col_' + desc.replace(/[^a-zA-Z0-9]/g, '_');
+                const segundos = row[colName] || 0;
+                const horas = Math.floor(segundos / 3600);
+                const minutos = Math.floor((segundos % 3600) / 60);
+                const segs = segundos % 60;
+                let display = '0s';
+                if (horas > 0) display = `${horas}h ${minutos}m ${segs}s`;
+                else if (minutos > 0) display = `${minutos}m ${segs}s`;
+                else if (segs > 0) display = `${segs}s`;
+                html += `<td>${display}</td>`;
+            });
+            html += `<td style="color: ${row.alertas > 0 ? '#dc3545' : '#28a745'}; font-weight: 600;">${row.alertas > 0 ? '⚠️ ' + row.alertas : '✅'}</td>`;
+            html += `</tr>`;
+        });
+        return html;
+    }
+
+    function generarResumenConteos(datos) {
+        const descripcionesSet = new Set();
+        const resumen = {};
+        const datosUsar = datos || conexionesFiltradas;
+        datosUsar.forEach(reg => {
+            const usuario = reg.usuario || 'Sin nombre';
+            const desc = reg.descripcion || 'Otros';
+            descripcionesSet.add(desc);
+            if (!resumen[usuario]) resumen[usuario] = { estados: {}, alertas: 0 };
+            resumen[usuario].estados[desc] = (resumen[usuario].estados[desc] || 0) + 1;
+        });
+        for (const [usuario, data] of Object.entries(resumen)) {
+            const registrosUsuario = datosUsar.filter(r => r.usuario === usuario);
+            data.alertas = contarAlertas(registrosUsuario);
+        }
+        const descripciones = Array.from(descripcionesSet).sort();
+
+        // Ordenar las filas por "Casos fin de turno" descendentemente
+        const claveCasosFinTurno = Object.keys(resumen[Object.keys(resumen)[0]]?.estados || {}).find(k => k.toLowerCase() === 'casos fin de turno') || 'Casos fin de turno';
+        let filasResumen = Object.entries(resumen).map(([usuario, data]) => ({ usuario, data }));
+        filasResumen.sort((a, b) => {
+            const valorA = a.data.estados[claveCasosFinTurno] || 0;
+            const valorB = b.data.estados[claveCasosFinTurno] || 0;
+            return valorB - valorA;
+        });
+
+        // Construir header
+        const headerRow = document.getElementById('resumenHeaderRow');
+        let headerHTML = '<th>Usuario</th>';
+        descripciones.forEach(desc => { headerHTML += `<th>${desc}</th>`; });
+        headerHTML += '<th>Alertas</th>';
+        headerRow.innerHTML = headerHTML;
+
+        let html = '';
+        filasResumen.forEach(({ usuario, data }) => {
+            const alertaClass = data.alertas > 0 ? 'alert-row' : '';
+            const usuarioClickable = `<strong style="cursor:pointer; color:#6f42c1; text-decoration:underline;" onclick="irATimelineDeUsuario('${usuario.replace(/'/g, "\\'")}')">${usuario}</strong>`;
+            html += `<tr class="${alertaClass}">`;
+            html += `<td>${usuarioClickable}</td>`;
+            descripciones.forEach(desc => {
+                html += `<td>${data.estados[desc] || 0}</td>`;
+            });
+            html += `<td style="color: ${data.alertas > 0 ? '#dc3545' : '#28a745'}; font-weight: 600;">${data.alertas > 0 ? '⚠️ ' + data.alertas : '✅'}</td>`;
+            html += `</tr>`;
+        });
+        return html;
+    }
+
+    function ordenarDuracion(columna) {
+        if (duracionSortColumn === columna) duracionSortDirection *= -1;
+        else { duracionSortColumn = columna; duracionSortDirection = 1; }
+        document.querySelectorAll('#duracionHeaderRow th .duracion-sort-icon').forEach(el => el.textContent = '↕');
+        const ths = document.querySelectorAll('#duracionHeaderRow th');
+        ths.forEach(th => {
+            if (th.getAttribute('data-col') === columna) {
+                const icon = th.querySelector('.duracion-sort-icon');
+                if (icon) icon.textContent = duracionSortDirection === 1 ? '↑' : '↓';
+            }
+        });
+        const tbody = document.getElementById('duracionTbody');
+        tbody.innerHTML = generarDuracionEstados(conexionesFiltradas);
+    }
+
+    function descargarDuracionExcel() {
+        const tbody = document.getElementById('duracionTbody');
+        const thead = document.getElementById('duracionHeaderRow');
+        if (!tbody || tbody.children.length === 0) { alert('No hay datos para exportar.'); return; }
+        const headers = [];
+        const ths = thead.querySelectorAll('th');
+        ths.forEach(th => headers.push(th.textContent.replace('↕', '').trim()));
+        const data = [];
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+            const rowData = [];
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => rowData.push(cell.textContent.trim()));
+            if (rowData.length > 0) data.push(rowData);
+        });
+        if (data.length === 0) { alert('No hay datos para exportar.'); return; }
+        const wb = XLSX.utils.book_new();
+        const wsData = [headers, ...data];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Duracion_por_Estado');
+        XLSX.writeFile(wb, 'Duracion_por_Estado.xlsx');
+    }
+
+    // ===== LÍNEA DE TIEMPO =====
+    function getEstadoClase(descripcion) {
+        const key = descripcion.toLowerCase().trim();
+        return estadoColores[key] || 'estado-default';
+    }
+
+    function calcularDuracionFormateada(inicio, fin) {
+        const segundos = calcularDuracionSegundos(inicio, fin);
+        if (segundos === 0) return '';
+        const horas = Math.floor(segundos / 3600);
+        const minutos = Math.floor((segundos % 3600) / 60);
+        const segs = segundos % 60;
+        if (horas > 0) return `${horas}h ${minutos.toString().padStart(2,'0')}m`;
+        else if (minutos > 0) return `${minutos}m ${segs.toString().padStart(2,'0')}s`;
+        else return `${segs}s`;
+    }
+
+    function tieneAlerta(registros) {
+        return contarAlertas(registros) > 0;
+    }
+
+    function generarLineaTiempo(usuario, registros) {
+        // Ordenar por fecha parseada
+        const sorted = [...registros].sort((a, b) => {
+            const fa = parseFecha(a.inicio);
+            const fb = parseFecha(b.inicio);
+            if (!fa || !fb) return 0;
+            return fa - fb;
+        });
+
+        const hasAlert = tieneAlerta(registros);
+        const alertClass = hasAlert ? 'has-alert' : '';
+        let transicionesAlerta = 0; // contador de transiciones alerta
+
+        const usuarioKey = usuario.toLowerCase().trim();
+        const licencia = mapaLicencias[usuarioKey] || {};
+        const supervisor = licencia.Supervisor || "";
+        const area = licencia.Area || "";
+
+        let html = `<div class="timeline-user ${alertClass}" style="background:var(--bg-card); border:1px solid #e9ecef; border-radius:var(--radius-sm); padding:16px; margin-bottom:12px; transition:var(--transition);">`;
+        html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">`;
+        html += `<span style="font-weight:700; font-size:1.05rem; color:var(--text-dark);">👤 ${usuario}`;
+        if (area) html += `<span style="font-size:0.7rem; color:var(--accent); font-weight:500; margin-left:4px; background:#eef2f7; padding:0 8px; border-radius:4px;">${area}</span>`;
+        if (supervisor) html += `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-left:6px;">👤 ${supervisor}</span>`;
+        if (hasAlert) html += `<span style="color:#dc3545; margin-left:8px; font-size:1.1rem;" title="⚠️ Transición no permitida: Casos fin de turno → Línea">⚠️</span>`;
+        html += `</span>`;
+        html += `<div style="font-size:0.8rem; color:var(--text-muted); display:flex; gap:12px; flex-wrap:wrap;">`;
+        html += `<span style="background:#f1f3f5; padding:2px 10px; border-radius:50px;">📋 ${sorted.length} registros</span>`;
+        if (sorted.length > 0) {
+            html += `<span>▶️ ${sorted[0].descripcion || 'N/A'}</span>`;
+            html += `<span>◀️ ${sorted[sorted.length-1].descripcion || 'N/A'}</span>`;
+        }
+        html += `</div></div>`;
+
+        html += `<div style="display:flex; flex-wrap:wrap; gap:6px; padding:4px 0; min-height:32px; align-items:center;">`;
+        sorted.forEach((reg, idx) => {
+            const clase = getEstadoClase(reg.descripcion);
+            const nombreEstado = reg.descripcion || 'Desconocido';
+            const duracion = calcularDuracionFormateada(reg.inicio, reg.fin);
+            let esAlerta = false;
+
+            if (idx > 0) {
+                const anterior = sorted[idx-1].descripcion.toLowerCase().trim();
+                const actual = reg.descripcion.toLowerCase().trim();
+                if ((anterior === 'casos fin de turno' || anterior === 'fin de turno') && (actual === 'línea' || actual === 'linea')) {
+                    transicionesAlerta++;
+                    if (transicionesAlerta > 1) { // la primera no se marca
+                        esAlerta = true;
+                    }
+                }
+            }
+
+            // Colores en línea (estilos inline para este sitio)
+            let bgColor = '#e9ecef';
+            if (clase === 'estado-linea') bgColor = '#ffd700';
+            else if (clase === 'estado-fin-turno') bgColor = '#6c757d';
+            else if (clase === 'estado-casos-fin-turno') bgColor = '#8b0000';
+            else if (clase === 'estado-conectado') bgColor = '#28a745';
+            else if (clase === 'estado-desconectado') bgColor = '#dc3545';
+            else if (clase === 'estado-pausa') bgColor = '#ffc107';
+            else if (clase === 'estado-almuerzo') bgColor = '#fd7e14';
+            else if (clase === 'estado-ocupado') bgColor = '#007bff';
+            else if (clase === 'estado-disponible') bgColor = '#17a2b8';
+            else if (clase === 'estado-gestion-bo') bgColor = '#6c3483';
+            else if (clase === 'estado-en-bano') bgColor = '#1a5276';
+            else if (clase === 'estado-en-break') bgColor = '#7d6608';
+
+            let border = '1px solid transparent';
+            let boxShadow = 'none';
+            let transform = 'none';
+            let zIndex = '1';
+            if (esAlerta) {
+                border = '3px solid #dc3545';
+                boxShadow = '0 0 20px rgba(220,53,69,0.5)';
+                transform = 'scale(1.05)';
+                zIndex = '5';
+            }
+            const textColor = (bgColor === '#ffd700' || bgColor === '#ffc107' || bgColor === '#e9ecef') ? '#000' : '#fff';
+
+            // Construir el bloque del estado con posición relativa para el icono superpuesto
+            html += `<span style="display:flex; flex-direction:column; align-items:center; min-width:60px; padding:6px 12px; border-radius:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; cursor:default; background:${bgColor}; color:${textColor}; border:${border}; box-shadow:${boxShadow}; transform:${transform}; z-index:${zIndex}; position:relative; ${esAlerta ? 'animation: pulse-alert-strong 1.2s ease-in-out infinite;' : ''}">`;
+            html += `<span style="font-size:0.7rem; font-weight:600; line-height:1.2;">${nombreEstado}</span>`;
+            if (duracion) html += `<span style="font-size:0.55rem; font-weight:400; opacity:0.8; margin-top:1px;">⏱ ${duracion}</span>`;
+            // Icono de alerta sobrepuesto en la esquina inferior derecha
+            if (esAlerta) {
+                html += `<span style="position:absolute; bottom:-10px; right:-10px; font-size:1.2rem; animation: pulse-alert-icon 0.6s ease-in-out infinite; z-index:10;">⚠️</span>`;
+            }
+            html += `</span>`;
+        });
+        html += `</div></div>`;
+        return html;
+    }
+
+    // NUEVA FUNCIÓN: Ir a la línea de tiempo de un usuario específico
+    function irATimelineDeUsuario(usuario) {
+        if (!usuario) return;
+        document.getElementById('timelineSearchInput').value = usuario;
+        irATimeline();
+    }
+
+    function irATimeline() {
+        if (conexionesData.length === 0) {
+            alert("Primero debe cargar un archivo de conexiones.");
+            return;
+        }
+        const mainSearch = document.getElementById("conexionesSearchInput").value;
+        const timelineSearch = document.getElementById("timelineSearchInput");
+        if (!timelineSearch.value) {
+            timelineSearch.value = mainSearch;
+        }
+
+        document.getElementById("conexionesPage").style.display = "none";
+        document.getElementById("timelinePage").style.display = "block";
+        actualizarTimeline();
+    }
+
+    function volverDeTimeline() {
+        document.getElementById("timelinePage").style.display = "none";
+        document.getElementById("conexionesPage").style.display = "block";
+        filtrarConexiones();
+    }
+
+    function actualizarTimeline() {
+        const container = document.getElementById('timelineContent');
+        container.innerHTML = '';
+        const searchTerm = document.getElementById("timelineSearchInput").value.toLowerCase().trim();
+        let datosFiltrados = conexionesData;
+        if (searchTerm) {
+            datosFiltrados = datosFiltrados.filter(row => (row.usuario || "").toLowerCase().includes(searchTerm));
+        }
+        if (areasSeleccionadas.length > 0) {
+            datosFiltrados = datosFiltrados.filter(row => {
+                const usuarioKey = (row.usuario || "").toLowerCase().trim();
+                const licencia = mapaLicencias[usuarioKey] || {};
+                const area = licencia.Area || "";
+                return areasSeleccionadas.includes(area);
+            });
+        }
+        conexionesFiltradas = datosFiltrados;
+
+        if (conexionesFiltradas.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: #6c757d; padding: 20px;">No hay datos para mostrar.</p>';
+            document.getElementById('timelineUserCount').textContent = '0';
+            return;
+        }
+
+        const grupos = {};
+        conexionesFiltradas.forEach(reg => {
+            const usuario = reg.usuario || 'Sin nombre';
+            if (!grupos[usuario]) grupos[usuario] = [];
+            grupos[usuario].push(reg);
+        });
+
+        let totalAlertas = 0;
+        let totalUsuarios = 0;
+        for (const [usuario, registros] of Object.entries(grupos)) {
+            container.innerHTML += generarLineaTiempo(usuario, registros);
+            totalUsuarios++;
+            totalAlertas += contarAlertas(registros);
+        }
+        document.getElementById('timelineUserCount').textContent = totalUsuarios;
+
+        const badge = document.getElementById('alertCountTimelineBadge');
+        if (!alertFilterActiveTimeline) {
+            badge.textContent = `${totalAlertas} alertas`;
+            badge.style.background = '#dc3545';
+            badge.style.boxShadow = '0 2px 8px rgba(220,53,69,0.3)';
+        } else {
+            badge.textContent = '🔍 Solo alertas';
+            badge.style.background = '#28a745';
+            badge.style.boxShadow = '0 2px 8px rgba(40,167,69,0.3)';
+        }
+
+        const allUsers = container.querySelectorAll('.timeline-user');
+        allUsers.forEach(user => {
+            if (alertFilterActiveTimeline) {
+                user.style.display = user.classList.contains('has-alert') ? 'block' : 'none';
+            } else {
+                user.style.display = 'block';
+            }
+        });
+    }
+
+    function filtrarTimeline() {
+        actualizarTimeline();
+    }
+
+    function toggleAlertFilterTimeline() {
+        alertFilterActiveTimeline = !alertFilterActiveTimeline;
+        actualizarTimeline();
+    }
+
+    // Inyectar estilos para la línea de tiempo (animaciones)
+    const styleTimeline = document.createElement('style');
+    styleTimeline.textContent = `
+        @keyframes pulse-alert-strong {
+            0%, 100% { box-shadow: 0 0 10px rgba(220,53,69,0.4); border-color: #dc3545; }
+            50% { box-shadow: 0 0 30px rgba(220,53,69,0.8), 0 0 60px rgba(220,53,69,0.2); border-color: #ff6b6b; }
+        }
+        @keyframes pulse-alert-icon {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        .timeline-user.has-alert {
+            border-left: 4px solid #dc3545 !important;
+        }
+    `;
+    document.head.appendChild(styleTimeline);
+
+    // ===== INICIALIZAR =====
+    document.getElementById("conexionesSinDatos").style.display = "block";
+    document.getElementById("duracionEstadosContainer").style.display = "none";
+    document.getElementById("resumenContainer").style.display = "none";
+</script>
+</body>
+</html>
