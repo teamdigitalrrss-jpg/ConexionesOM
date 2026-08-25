@@ -227,7 +227,7 @@
         }
 
         .conexiones-table-container {
-            max-height: 400px;
+            max-height: 220px;  /* Altura para mostrar aprox. 4 filas */
             overflow-y: auto;
             background: var(--bg-card);
             border-radius: var(--radius);
@@ -712,8 +712,7 @@
         }
         conexionesFiltradas = datosFiltrados;
 
-        // Mostrar solo las primeras 4 filas
-        const maxMostrar = 4;
+        // Mostrar todas las filas que cumplen el filtro, sin ocultar por límite
         let contador = 0;
         filas.forEach(fila => {
             const usuarioCell = fila.querySelector("td:first-child");
@@ -729,12 +728,8 @@
                 const area = areaCell ? areaCell.textContent : "";
                 if (!areasSeleccionadas.includes(area)) visible = false;
             }
-            if (visible) {
-                contador++;
-                fila.style.display = contador <= maxMostrar ? "" : "none";
-            } else {
-                fila.style.display = "none";
-            }
+            fila.style.display = visible ? "" : "none";
+            if (visible) contador++;
         });
 
         let mensajeFila = tbody.querySelector(".no-results-message");
