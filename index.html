@@ -376,23 +376,47 @@
         }
 
         #tablaPorHora th {
-            background: #f1f3f5;
+            background: #6f42c1;
+            color: #fff;
             padding: 8px 12px;
-            text-align: left;
+            text-align: center;
             font-weight: 600;
-            border-bottom: 2px solid #dee2e6;
+            border-bottom: 2px solid #5a32a3;
             position: sticky;
             top: 0;
+            z-index: 5;
+            white-space: nowrap;
         }
 
         #tablaPorHora td {
             padding: 8px 12px;
             border-bottom: 1px solid #f1f3f5;
-            vertical-align: top;
+            vertical-align: middle;
+        }
+
+        #tablaPorHora tr:nth-child(even) {
+            background: #fcfcfd;
         }
 
         #tablaPorHora tr:hover {
             background: #f8f9fa;
+        }
+
+        .estado-pill {
+            display: inline-block;
+            min-width: 26px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.72rem;
+            cursor: help;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .estado-pill:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .table-container {
@@ -527,17 +551,18 @@
         </div>
     </div>
 
-    <!-- NUEVA TABLA: ASESORES CONECTADOS POR HORA -->
+    <!-- NUEVA TABLA: ASESORES CONECTADOS POR HORA (CON DESGLOSE POR ESTADO) -->
     <div class="resumen-tiempos-container" id="porHoraContainer" style="display:none;">
-        <h3>🕐 Asesores Conectados por Hora</h3>
-        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Asesores que estuvieron conectados durante cada hora del día. Se actualiza con los filtros aplicados.</p>
-        <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+        <h3>🕐 Asesores por Hora y Estado</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
+            Total de asesores únicos por hora y desglose por estado. Pasa el cursor sobre los números para ver los nombres. Se actualiza con los filtros aplicados. <em>Nota: los breaks con duración menor a 10 minutos no se reflejan en esta tabla.</em>
+        </p>
+        <div class="table-container" style="max-height: 500px; overflow: auto;">
             <table id="tablaPorHora">
-                <thead>
+                <thead id="porHoraThead">
                     <tr>
-                        <th style="width: 140px;">Hora</th>
-                        <th>Asesores Conectados</th>
-                        <th style="width: 90px; text-align:center;">Total</th>
+                        <th>Hora</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody id="porHoraTbody"></tbody>
@@ -1035,11 +1060,53 @@
         return html;
     }
 
-    // ===== NUEVA FUNCIÓN: TABLA DE ASESORES CONECTADOS POR HORA =====
+    // ===== FUNCIÓN: TABLA DE ASESORES POR HORA CON DESGLOSE POR ESTADO =====
+    function getEstadoColor(estado) {
+        const key = (estado || '').toLowerCase().trim();
+        const map = {
+            'línea': { bg: '#ffd700', text: '#000' },
+            'linea': { bg: '#ffd700', text: '#000' },
+            'fin de turno': { bg: '#6c757d', text: '#fff' },
+            'casos fin de turno': { bg: '#8b0000', text: '#fff' },
+            'conectado': { bg: '#28a745', text: '#fff' },
+            'desconectado': { bg: '#dc3545', text: '#fff' },
+            'pausa': { bg: '#ffc107', text: '#000' },
+            'almuerzo': { bg: '#fd7e14', text: '#fff' },
+            'ocupado': { bg: '#007bff', text: '#fff' },
+            'disponible': { bg: '#17a2b8', text: '#fff' },
+            'gestión bo': { bg: '#6c3483', text: '#fff' },
+            'gestion bo': { bg: '#6c3483', text: '#fff' },
+            'en baño': { bg: '#1a5276', text: '#fff' },
+            'en bano': { bg: '#1a5276', text: '#fff' },
+            'en break': { bg: '#7d6608', text: '#fff' },
+            'coaching': { bg: '#e83e8c', text: '#fff' },
+            'capacitación': { bg: '#20c997', text: '#000' },
+            'capacitacion': { bg: '#20c997', text: '#000' },
+            'reunión': { bg: '#6610f2', text: '#fff' },
+            'reunion': { bg: '#6610f2', text: '#fff' },
+            'back office': { bg: '#495057', text: '#fff' }
+        };
+        return map[key] || { bg: '#e9ecef', text: '#000' };
+    }
+
     function generarTablaPorHora(datos) {
-        const datosUsar = datos || conexionesFiltradas;
+        // === REGLA ESPECIAL: breaks de menos de 10 minutos no se reflejan ===
+        const datosUsar = (datos || conexionesFiltradas).filter(reg => {
+            const estadoLower = (reg.descripcion || '').toLowerCase().trim();
+            if (estadoLower.includes('break')) {
+                const segundos = calcularDuracionSegundos(reg.inicio, reg.fin);
+                if (segundos < 600) return false; // menos de 10 minutos
+            }
+            return true;
+        });
+
+        // Estructura por hora: total de asesores únicos y conjunto de asesores por estado
         const porHora = {};
-        for (let h = 0; h < 24; h++) porHora[h] = new Set();
+        for (let h = 0; h < 24; h++) {
+            porHora[h] = { total: new Set(), porEstado: {} };
+        }
+
+        const estadosSet = new Set();
 
         datosUsar.forEach(reg => {
             const inicioDate = parseFecha(reg.inicio);
@@ -1047,8 +1114,9 @@
             if (!inicioDate || !finDate) return;
 
             const usuario = reg.usuario || 'Sin nombre';
+            const estado = reg.descripcion || 'Otros';
+            estadosSet.add(estado);
 
-            // Recorrer cada día que abarca el intervalo
             const dayStart = new Date(inicioDate.getFullYear(), inicioDate.getMonth(), inicioDate.getDate());
             const dayEnd = new Date(finDate.getFullYear(), finDate.getMonth(), finDate.getDate());
 
@@ -1061,30 +1129,57 @@
                     hourEnd.setHours(h + 1, 0, 0, 0);
 
                     if (inicioDate < hourEnd && finDate > hourStart) {
-                        porHora[h].add(usuario);
+                        porHora[h].total.add(usuario);
+                        if (!porHora[h].porEstado[estado]) porHora[h].porEstado[estado] = new Set();
+                        porHora[h].porEstado[estado].add(usuario);
                     }
                 }
                 currentDay.setDate(currentDay.getDate() + 1);
             }
         });
 
+        const estados = Array.from(estadosSet).sort();
+
+        // Construir cabecera dinámica
+        const thead = document.getElementById('porHoraThead');
+        let headerHTML = '<tr>';
+        headerHTML += '<th style="width:130px; text-align:left;">Hora</th>';
+        headerHTML += '<th style="min-width:70px;">Total</th>';
+        estados.forEach(e => {
+            headerHTML += `<th style="min-width:70px;">${e}</th>`;
+        });
+        headerHTML += '</tr>';
+        thead.innerHTML = headerHTML;
+
+        // Construir filas
         let html = '';
         let horasConDatos = 0;
         for (let h = 0; h < 24; h++) {
-            if (porHora[h].size > 0) {
+            if (porHora[h].total.size > 0) {
                 horasConDatos++;
-                const asesores = Array.from(porHora[h]).sort((a, b) => a.localeCompare(b));
                 const horaLabel = `${String(h).padStart(2, '0')}:00 - ${String((h + 1) % 24).padStart(2, '0')}:00`;
-                html += `<tr>
-                    <td><strong>${horaLabel}</strong></td>
-                    <td style="font-size:0.75rem; line-height:1.6;">${asesores.join(', ')}</td>
-                    <td style="color:#6f42c1; font-weight:700; text-align:center;">${asesores.length}</td>
-                </tr>`;
+                html += '<tr>';
+                html += `<td style="text-align:left;"><strong>${horaLabel}</strong></td>`;
+                html += `<td style="text-align:center; font-weight:700; color:#6f42c1; font-size:0.85rem;">${porHora[h].total.size}</td>`;
+
+                estados.forEach(estado => {
+                    const set = porHora[h].porEstado[estado];
+                    if (set && set.size > 0) {
+                        const nombres = Array.from(set).sort().join(', ');
+                        const color = getEstadoColor(estado);
+                        html += `<td style="text-align:center;">
+                            <span class="estado-pill" style="background:${color.bg}; color:${color.text};" title="${nombres}">${set.size}</span>
+                        </td>`;
+                    } else {
+                        html += `<td style="text-align:center; color:#ced4da;">—</td>`;
+                    }
+                });
+                html += '</tr>';
             }
         }
 
         if (horasConDatos === 0) {
-            html = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#6c757d;">No hay datos para mostrar con los filtros actuales.</td></tr>';
+            html = `<tr><td colspan="${estados.length + 2}" style="text-align:center; padding:20px; color:#6c757d;">No hay datos para mostrar con los filtros actuales.</td></tr>`;
         }
 
         return html;
